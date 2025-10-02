@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📘 Smart Study Planner</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Simple Icons - No external dependencies */
+        .fas { font-style: normal; }
+        .fa-home:before { content: "🏠"; }
+        .fa-tasks:before { content: "📋"; }
+        .fa-clock:before { content: "⏰"; }
+        .fa-chart-bar:before { content: "📊"; }
+        .fa-calendar:before { content: "📅"; }
+        .fa-users:before { content: "👥"; }
+        .fa-moon:before { content: "🌙"; }
+        .fa-sun:before { content: "☀️"; }
+        .fa-cog:before { content: "⚙️"; }
+        .fa-plus:before { content: "+"; }
+        .fa-play:before { content: "▶️"; }
+        .fa-pause:before { content: "⏸️"; }
+        .fa-stop:before { content: "⏹️"; }
+        .fa-edit:before { content: "✏️"; }
+        .fa-trash:before { content: "🗑️"; }
+        .fa-sync:before { content: "🔄"; }
+        .fa-download:before { content: "⬇️"; }
+        .fa-chevron-left:before { content: "◀"; }
+        .fa-chevron-right:before { content: "▶"; }
+        .fa-medal:before { content: "🏅"; }
+        .fa-fire:before { content: "🔥"; }
+        .fa-trophy:before { content: "🏆"; }
+        .fa-tag:before { content: "🏷️"; }
+        .fa-list:before { content: "📝"; }
+        .fa-clipboard-list:before { content: "📋"; }
+        .fa-share-alt:before { content: "📤"; }
+        .fa-calendar-week:before { content: "📅"; }
+        .fa-brain:before { content: "🧠"; }
+        .fa-sticky-note:before { content: "📝"; }
+        .fa-check-circle:before { content: "✅"; }
+        .fa-music:before { content: "🎵"; }
+        .fa-volume-up:before { content: "🔊"; }
+        .fa-volume-mute:before { content: "🔇"; }
+        .fa-lightbulb:before { content: "💡"; }
+        .fa-bookmark:before { content: "🔖"; }
+        .fa-search:before { content: "🔍"; }
+        .fa-filter:before { content: "🏷️"; }
+        .fa-star:before { content: "⭐"; }
+        .fa-heart:before { content: "❤️"; }
+        .fa-eye:before { content: "👁️"; }
+        .fa-lock:before { content: "🔒"; }
+        
+        /* Color theme buttons */
+        .color-blue { background: #2196F3 !important; }
+        .color-green { background: #4CAF50 !important; }
+        .color-purple { background: #9C27B0 !important; }
+        .color-orange { background: #FF9800 !important; }
+        
+        /* Theme color options */
+        .theme-blue { background: #2196F3; }
+        .theme-green { background: #4CAF50; }
+        .theme-purple { background: #9C27B0; }
+        .theme-orange { background: #FF9800; }
+        
+        /* Color option buttons for settings */
+        .color-option-blue { background: #2196F3; }
+        .color-option-green { background: #4CAF50; }
+        .color-option-purple { background: #9C27B0; }
+        .color-option-orange { background: #FF9800; }
+        
+        /* Hidden file input */
+        #importFile { display: none; }
+    </style>
+</head>
+<body>
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">📘 Smart Study Planner</h1>
+                <div class="header-actions">
+                    <button id="themeToggle" class="theme-toggle" title="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="settingsBtn" class="settings-btn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <div class="user-level">
+                        <span id="userLevel">Level 1</span>
+                        <div class="xp-bar">
+                            <div id="xpProgress" class="xp-progress"></div>
+                        </div>
+                        <span id="xpText">0/100 XP</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <button class="nav-btn active" data-view="dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </button>
+            <button class="nav-btn" data-view="tasks">
+                <i class="fas fa-tasks"></i> Tasks
+            </button>
+            <button class="nav-btn" data-view="timer">
+                <i class="fas fa-clock"></i> Pomodoro
+            </button>
+            <button class="nav-btn" data-view="analytics">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </button>
+            <button class="nav-btn" data-view="calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </button>
+            <button class="nav-btn" data-view="collaboration">
+                <i class="fas fa-users"></i> Groups
+            </button>
+            <button class="nav-btn" data-view="focus">
+                <i class="fas fa-brain"></i> Focus
+            </button>
+            <button class="nav-btn" data-view="notes">
+                <i class="fas fa-sticky-note"></i> Notes
+            </button>
+            <button class="nav-btn" data-view="habits">
+                <i class="fas fa-check-circle"></i> Habits
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view active">
+                <div class="welcome-section">
+                    <h2 id="welcomeMessage">Good morning! 👋</h2>
+                    <p id="tasksOverview">You have 0 tasks. Let's make today productive!</p>
+                    <div class="streak-counter">
+                        <span class="streak-emoji">🔥</span>
+                        <span id="streakCount">0</span>
+                        <span>day streak</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Progress Overview -->
+                    <div class="card progress-card">
+                        <h3>📈 Your Progress</h3>
+                        <div class="progress-circle">
+                            <svg class="progress-svg" width="120" height="120">
+                                <circle cx="60" cy="60" r="50" stroke="#e0e0e0" stroke-width="8" fill="none"/>
+                                <circle id="progressCircle" cx="60" cy="60" r="50" stroke="#4CAF50" stroke-width="8" 
+                                        fill="none" stroke-dasharray="314" stroke-dashoffset="314"/>
+                            </svg>
+                            <div class="progress-text">
+                                <span id="progressPercent">0%</span>
+                                <small id="progressTasks">0 of 0 tasks</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Goals -->
+                    <div class="card goals-card">
+                        <h3>🎯 Today's Goals</h3>
+                        <div class="goal-item">
+                            <span>Study Time:</span>
+                            <span id="studyTimeGoal">0h / 4h</span>
+                        </div>
+                        <div class="goal-item">
+                            <span>Tasks:</span>
+                            <span id="tasksGoal">0 / 5</span>
+                        </div>
+                        <button id="setGoalsBtn" class="btn btn-outline">Set Goals</button>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="card stats-card">
+                        <h3>📊 Quick Stats</h3>
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Today:</span>
+                            <span id="todayTime">0m</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-calendar-week"></i>
+                            <span>This Week:</span>
+                            <span id="weekTime">0h</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-trophy"></i>
+                            <span>Points:</span>
+                            <span id="totalPoints">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Motivational Quote -->
+                    <div class="card quote-card">
+                        <h3>💡 Daily Motivation</h3>
+                        <p id="dailyQuote">"Success is the sum of small efforts repeated day in and day out."</p>
+                        <small id="quoteAuthor">- Robert Collier</small>
+                        <button id="newQuoteBtn" class="btn btn-outline">New Quote</button>
+                    </div>
+                </div>
+
+                <!-- Recent Tasks -->
+                <div class="card recent-tasks">
+                    <h3>📝 Recent Tasks</h3>
+                    <div id="recentTasksList" class="tasks-list">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>No tasks yet! Add your first study goal.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="tasks" class="view">
+                <div class="tasks-header">
+                    <h2>📝 Task Management</h2>
+                    <button id="addTaskBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+
+                <!-- Task Filters -->
+                <div class="task-filters">
+                    <select id="categoryFilter" title="Filter tasks by category">
+                        <option value="">All Categories</option>
+                        <option value="math">📐 Math</option>
+                        <option value="science">🔬 Science</option>
+                        <option value="history">📚 History</option>
+                        <option value="language">🗣️ Language</option>
+                        <option value="other">📋 Other</option>
+                    </select>
+                    <select id="priorityFilter" title="Filter tasks by priority">
+                        <option value="">All Priorities</option>
+                        <option value="urgent">🚨 Urgent</option>
+                        <option value="high">🔴 High</option>
+                        <option value="medium">🟡 Medium</option>
+                        <option value="low">🟢 Low</option>
+                        <option value="optional">⚪ Optional</option>
+                    </select>
+                    <select id="statusFilter" title="Filter tasks by status">
+                        <option value="">All Status</option>
+                        <option value="pending">⏳ Pending</option>
+                        <option value="in-progress">⚡ In Progress</option>
+                        <option value="completed">✅ Completed</option>
+                    </select>
+                </div>
+
+                <!-- Tasks List -->
+                <div id="tasksContainer" class="tasks-container">
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No tasks yet! Click "Add Task" to get started.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pomodoro Timer View -->
+            <div id="timer" class="view">
+                <div class="timer-container">
+                    <h2>⏱️ Pomodoro Timer</h2>
+                    <div class="timer-circle">
+                        <svg class="timer-svg" width="200" height="200">
+                            <circle cx="100" cy="100" r="80" stroke="#e0e0e0" stroke-width="8" fill="none"/>
+                            <circle id="timerProgress" cx="100" cy="100" r="80" stroke="#FF6B6B" stroke-width="8" 
+                                    fill="none" stroke-dasharray="502" stroke-dashoffset="0"/>
+                        </svg>
+                        <div class="timer-text">
+                            <span id="timerDisplay">25:00</span>
+                            <span id="timerPhase">Focus Time</span>
+                        </div>
+                    </div>
+                    <div class="timer-controls">
+                        <button id="startTimer" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button id="pauseTimer" class="btn btn-secondary" disabled>
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button id="resetTimer" class="btn btn-outline">
+                            <i class="fas fa-stop"></i> Reset
+                        </button>
+                    </div>
+                    <div class="timer-settings">
+                        <label>Focus Time: <input type="number" id="focusTime" value="25" min="1" max="60"> minutes</label>
+                        <label>Short Break: <input type="number" id="shortBreak" value="5" min="1" max="30"> minutes</label>
+                        <label>Long Break: <input type="number" id="longBreak" value="15" min="1" max="60"> minutes</label>
+                    </div>
+                    <div class="pomodoro-stats">
+                        <div class="stat">
+                            <span>Sessions Today:</span>
+                            <span id="sessionsToday">0</span>
+                        </div>
+                        <div class="stat">
+                            <span>Total Sessions:</span>
+                            <span id="totalSessions">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analytics" class="view">
+                <h2>📊 Progress Analytics</h2>
+                <div class="analytics-grid">
+                    <div class="card chart-card">
+                        <h3>Study Time This Week</h3>
+                        <div id="weeklyChart" class="simple-chart"></div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Tasks by Category</h3>
+                        <div id="categoryChart" class="simple-chart"></div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Daily Productivity</h3>
+                        <div id="productivityChart" class="simple-chart"></div>
+                    </div>
+                    <div class="card achievements-card">
+                        <h3>🏆 Achievements</h3>
+                        <div id="achievementsList" class="achievements-list">
+                            <div class="achievement locked">
+                                <i class="fas fa-medal"></i>
+                                <span>First Task</span>
+                            </div>
+                            <div class="achievement locked">
+                                <i class="fas fa-fire"></i>
+                                <span>7-Day Streak</span>
+                            </div>
+                            <div class="achievement locked">
+                                <i class="fas fa-clock"></i>
+                                <span>10 Hours Study</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendar" class="view">
+                <h2>📅 Study Calendar</h2>
+                <div class="calendar-header">
+                    <button id="prevMonth" class="btn btn-outline" title="Previous Month">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="currentMonth">October 2025</h3>
+                    <button id="nextMonth" class="btn btn-outline" title="Next Month">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <!-- Calendar will be generated dynamically -->
+                </div>
+                <div class="calendar-actions">
+                    <button id="syncCalendarBtn" class="btn btn-primary">
+                        <i class="fas fa-sync"></i> Sync with Google Calendar
+                    </button>
+                    <button id="exportCalendarBtn" class="btn btn-outline">
+                        <i class="fas fa-download"></i> Export Calendar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collaboration View -->
+            <div id="collaboration" class="view">
+                <h2>👥 Group Study</h2>
+                <div class="collaboration-grid">
+                    <div class="card groups-card">
+                        <h3>My Study Groups</h3>
+                        <div id="studyGroups" class="groups-list">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <p>No study groups yet. Create or join one!</p>
+                            </div>
+                        </div>
+                        <button id="createGroupBtn" class="btn btn-primary">Create Group</button>
+                        <button id="joinGroupBtn" class="btn btn-outline">Join Group</button>
+                    </div>
+                    <div class="card shared-tasks-card">
+                        <h3>Shared Tasks</h3>
+                        <div id="sharedTasks" class="shared-tasks-list">
+                            <div class="empty-state">
+                                <i class="fas fa-share-alt"></i>
+                                <p>No shared tasks yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Focus Mode View -->
+            <div id="focus" class="view">
+                <h2>🧠 Focus Mode</h2>
+                <div class="focus-container">
+                    <div class="card focus-controls">
+                        <h3>Focus Session</h3>
+                        <div class="focus-settings">
+                            <div class="setting-item">
+                                <label for="blockDistractions">Block Distractions:</label>
+                                <input type="checkbox" id="blockDistractions" checked>
+                            </div>
+                            <div class="setting-item">
+                                <label for="fullScreenBtn">Full Screen Mode:</label>
+                                <button id="fullScreenBtn" class="btn btn-outline">Enter Fullscreen</button>
+                            </div>
+                            <div class="setting-item">
+                                <label for="focusGoal">Study Goal:</label>
+                                <select id="focusGoal" title="Select study goal duration">
+                                    <option value="25">25 minutes</option>
+                                    <option value="50">50 minutes</option>
+                                    <option value="90">90 minutes</option>
+                                    <option value="120">2 hours</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="startFocusSession" class="btn btn-primary btn-large">
+                            <i class="fas fa-play"></i> Start Focus Session
+                        </button>
+                    </div>
+
+                    <div class="card ambient-sounds">
+                        <h3>🎵 Ambient Sounds</h3>
+                        <div class="sound-controls">
+                            <div class="sound-item">
+                                <button class="sound-btn" data-sound="rain">🌧️ Rain</button>
+                                <input type="range" class="volume-slider" min="0" max="100" value="50" data-sound="rain" title="Rain volume control">
+                            </div>
+                            <div class="sound-item">
+                                <button class="sound-btn" data-sound="forest">🌲 Forest</button>
+                                <input type="range" class="volume-slider" min="0" max="100" value="50" data-sound="forest" title="Forest volume control">
+                            </div>
+                            <div class="sound-item">
+                                <button class="sound-btn" data-sound="ocean">🌊 Ocean</button>
+                                <input type="range" class="volume-slider" min="0" max="100" value="50" data-sound="ocean" title="Ocean volume control">
+                            </div>
+                            <div class="sound-item">
+                                <button class="sound-btn" data-sound="cafe">☕ Café</button>
+                                <input type="range" class="volume-slider" min="0" max="100" value="50" data-sound="cafe" title="Café volume control">
+                            </div>
+                        </div>
+                        <button id="stopAllSounds" class="btn btn-outline">🔇 Stop All Sounds</button>
+                    </div>
+
+                    <div class="card focus-stats">
+                        <h3>📊 Focus Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <span class="stat-number" id="focusSessionsToday">0</span>
+                                <span class="stat-label">Sessions Today</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-number" id="totalFocusTime">0h</span>
+                                <span class="stat-label">Total Focus Time</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-number" id="averageSession">0m</span>
+                                <span class="stat-label">Average Session</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-number" id="focusStreak">0</span>
+                                <span class="stat-label">Day Streak</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes View -->
+            <div id="notes" class="view">
+                <h2>📝 Study Notes</h2>
+                <div class="notes-container">
+                    <div class="notes-sidebar">
+                        <div class="notes-search">
+                            <input type="text" id="notesSearch" placeholder="🔍 Search notes...">
+                        </div>
+                        <div class="notes-filter">
+                            <select id="notesFilter" title="Filter notes by category">
+                                <option value="">All Categories</option>
+                                <option value="math">📐 Math</option>
+                                <option value="science">🔬 Science</option>
+                                <option value="history">📚 History</option>
+                                <option value="language">🗣️ Language</option>
+                                <option value="personal">💭 Personal</option>
+                            </select>
+                        </div>
+                        <button id="addNoteBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Note
+                        </button>
+                        <div id="notesList" class="notes-list">
+                            <div class="empty-state">
+                                <i class="fas fa-sticky-note"></i>
+                                <p>No notes yet. Create your first note!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notes-editor">
+                        <div id="noteEditor" class="note-editor-container">
+                            <div class="editor-toolbar">
+                                <button class="editor-btn" data-action="bold" title="Bold">
+                                    <strong>B</strong>
+                                </button>
+                                <button class="editor-btn" data-action="italic" title="Italic">
+                                    <em>I</em>
+                                </button>
+                                <button class="editor-btn" data-action="underline" title="Underline">
+                                    <u>U</u>
+                                </button>
+                                <button class="editor-btn" data-action="highlight" title="Highlight">
+                                    🖍️
+                                </button>
+                                <button class="editor-btn" data-action="insertOrderedList" title="Numbered List">
+                                    📝
+                                </button>
+                                <button class="editor-btn" data-action="insertUnorderedList" title="Bullet List">
+                                    📋
+                                </button>
+                            </div>
+                            <div id="noteContent" class="note-content" contenteditable="true" 
+                                 placeholder="Start writing your notes here...">
+                            </div>
+                            <div class="editor-footer">
+                                <span id="wordCount">0 words</span>
+                                <span id="lastSaved">Never saved</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Habits View -->
+            <div id="habits" class="view">
+                <h2>✅ Habit Tracker</h2>
+                <div class="habits-container">
+                    <div class="card habits-overview">
+                        <h3>📊 Habits Overview</h3>
+                        <div class="habits-stats">
+                            <div class="habit-stat">
+                                <span class="stat-number" id="activeHabits">0</span>
+                                <span class="stat-label">Active Habits</span>
+                            </div>
+                            <div class="habit-stat">
+                                <span class="stat-number" id="habitCompletionRate">0%</span>
+                                <span class="stat-label">Completion Rate</span>
+                            </div>
+                            <div class="habit-stat">
+                                <span class="stat-number" id="longestStreak">0</span>
+                                <span class="stat-label">Longest Streak</span>
+                            </div>
+                        </div>
+                        <button id="addHabitBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Habit
+                        </button>
+                    </div>
+
+                    <div class="card habits-calendar">
+                        <h3>📅 Habit Calendar</h3>
+                        <div id="habitsCalendarGrid" class="habits-calendar-grid">
+                            <!-- Calendar will be generated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="card habits-list">
+                        <h3>📝 My Habits</h3>
+                        <div id="habitsList" class="habits-items">
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle"></i>
+                                <p>No habits yet. Add your first habit to get started!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Task</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskCategory">Category</label>
+                        <select id="taskCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="math">📐 Math</option>
+                            <option value="science">🔬 Science</option>
+                            <option value="history">📚 History</option>
+                            <option value="language">🗣️ Language</option>
+                            <option value="other">📋 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" required>
+                            <option value="urgent">🚨 Urgent</option>
+                            <option value="high">🔴 High</option>
+                            <option value="medium" selected>🟡 Medium</option>
+                            <option value="low">🟢 Low</option>
+                            <option value="optional">⚪ Optional</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskDueDate">Due Date</label>
+                        <input type="datetime-local" id="taskDueDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEstimatedTime">Estimated Time (hours)</label>
+                        <input type="number" id="taskEstimatedTime" min="0.5" max="24" step="0.5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="taskRecurring"> Recurring Task
+                    </label>
+                    <select id="taskRecurrencePattern" disabled title="Select recurrence pattern for recurring tasks">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskNotes">Notes & Attachments</label>
+                    <textarea id="taskNotes" placeholder="Add any additional notes or links..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskSubtasks">Subtasks (one per line)</label>
+                    <textarea id="taskSubtasks" placeholder="Break down your task into smaller steps..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goals Modal -->
+    <div id="goalsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Set Daily/Weekly Goals</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="goalsForm">
+                <div class="form-group">
+                    <label for="dailyStudyTime">Daily Study Time Goal (hours)</label>
+                    <input type="number" id="dailyStudyTime" min="0.5" max="12" step="0.5" value="4">
+                </div>
+                <div class="form-group">
+                    <label for="dailyTasks">Daily Tasks Goal</label>
+                    <input type="number" id="dailyTasks" min="1" max="20" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="weeklyStudyTime">Weekly Study Time Goal (hours)</label>
+                    <input type="number" id="weeklyStudyTime" min="5" max="84" value="28">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Goals</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content settings-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Settings</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h4><i class="fas fa-palette"></i> Theme</h4>
+                    <div class="theme-selector">
+                        <div class="theme-option">
+                            <label for="darkModeToggle">Dark Mode</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="darkModeToggle" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="color-themes">
+                        <h5>Color Theme</h5>
+                        <div class="color-options">
+                            <button class="color-option color-blue" data-theme="blue" title="Blue Theme"
+                                    aria-label="Select blue color theme">
+                                <span class="color-circle"></span>
+                                <span class="color-name">Blue</span>
+                            </button>
+                            <button class="color-option color-green" data-theme="green" title="Green Theme"
+                                    aria-label="Select green color theme">
+                                <span class="color-circle"></span>
+                                <span class="color-name">Green</span>
+                            </button>
+                            <button class="color-option color-purple" data-theme="purple" title="Purple Theme"
+                                    aria-label="Select purple color theme">
+                                <span class="color-circle"></span>
+                                <span class="color-name">Purple</span>
+                            </button>
+                            <button class="color-option color-orange" data-theme="orange" title="Orange Theme"
+                                    aria-label="Select orange color theme">
+                                <span class="color-circle"></span>
+                                <span class="color-name">Orange</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h4><i class="fas fa-bell"></i> Notifications</h4>
+                    <div class="notification-settings">
+                        <div class="setting-item">
+                            <label for="taskReminders">Task Deadline Reminders</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="taskReminders" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label for="breakReminders">Break Reminders</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="breakReminders" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label for="streakReminders">Streak Reminders</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="streakReminders" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h4><i class="fas fa-database"></i> Data Management</h4>
+                    <div class="data-management">
+                        <div class="data-actions">
+                            <button id="exportDataBtn" class="btn btn-primary">
+                                <i class="fas fa-download"></i>
+                                Export Data
+                            </button>
+                            <div class="import-section">
+                                <input type="file" id="importFile" accept=".json" hidden>
+                                <button id="importDataBtn" class="btn btn-outline">
+                                    <i class="fas fa-upload"></i>
+                                    Import Data
+                                </button>
+                            </div>
+                        </div>
+                        <div class="data-info">
+                            <small>Export your study data as JSON or import from a backup file.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Note Modal -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="noteModalTitle">Add New Note</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="noteForm">
+                <div class="form-group">
+                    <label for="noteTitle">Note Title</label>
+                    <input type="text" id="noteTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="noteCategory">Category</label>
+                    <select id="noteCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="math">📐 Math</option>
+                        <option value="science">🔬 Science</option>
+                        <option value="history">📚 History</option>
+                        <option value="language">🗣️ Language</option>
+                        <option value="personal">💭 Personal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="noteTags">Tags (comma separated)</label>
+                    <input type="text" id="noteTags" placeholder="important, exam, review">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="notePrivate"> Private Note
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Habit Modal -->
+    <div id="habitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="habitModalTitle">Add New Habit</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="habitForm">
+                <div class="form-group">
+                    <label for="habitName">Habit Name</label>
+                    <input type="text" id="habitName" required placeholder="e.g., Read 30 minutes daily">
+                </div>
+                <div class="form-group">
+                    <label for="habitDescription">Description</label>
+                    <textarea id="habitDescription" rows="2" placeholder="Why is this habit important?"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="habitFrequency">Frequency</label>
+                        <select id="habitFrequency" required>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="workdays">Workdays Only</option>
+                            <option value="weekends">Weekends Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="habitTime">Best Time</label>
+                        <select id="habitTime">
+                            <option value="">Any Time</option>
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                            <option value="evening">Evening</option>
+                            <option value="night">Night</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="habitIcon">Icon</label>
+                    <div class="habit-icons">
+                        <button type="button" class="habit-icon-btn" data-icon="📚">📚</button>
+                        <button type="button" class="habit-icon-btn" data-icon="💪">💪</button>
+                        <button type="button" class="habit-icon-btn" data-icon="🧘">🧘</button>
+                        <button type="button" class="habit-icon-btn" data-icon="💧">💧</button>
+                        <button type="button" class="habit-icon-btn" data-icon="🏃">🏃</button>
+                        <button type="button" class="habit-icon-btn" data-icon="🎨">🎨</button>
+                        <button type="button" class="habit-icon-btn" data-icon="✍️">✍️</button>
+                        <button type="button" class="habit-icon-btn" data-icon="🎵">🎵</button>
+                    </div>
+                    <input type="hidden" id="habitIcon" value="📚">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
